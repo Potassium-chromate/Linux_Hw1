@@ -1,0 +1,6 @@
+digraph G {
+  node [shape=record];
+  node0 [label="{124}"];
+  node0 -> node1;
+  node1 [label="{123}"];
+}

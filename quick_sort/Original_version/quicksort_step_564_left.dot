@@ -1,0 +1,32 @@
+digraph G {
+  node [shape=record];
+  node0 [label="{82}"];
+  node0 -> node1;
+  node1 [label="{80}"];
+  node1 -> node2;
+  node2 [label="{83}"];
+  node2 -> node3;
+  node3 [label="{70}"];
+  node3 -> node4;
+  node4 [label="{72}"];
+  node4 -> node5;
+  node5 [label="{76}"];
+  node5 -> node6;
+  node6 [label="{79}"];
+  node6 -> node7;
+  node7 [label="{84}"];
+  node7 -> node8;
+  node8 [label="{77}"];
+  node8 -> node9;
+  node9 [label="{81}"];
+  node9 -> node10;
+  node10 [label="{74}"];
+  node10 -> node11;
+  node11 [label="{71}"];
+  node11 -> node12;
+  node12 [label="{78}"];
+  node12 -> node13;
+  node13 [label="{73}"];
+  node13 -> node14;
+  node14 [label="{75}"];
+}

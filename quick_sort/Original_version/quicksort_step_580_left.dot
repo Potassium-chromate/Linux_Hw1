@@ -1,0 +1,12 @@
+digraph G {
+  node [shape=record];
+  node0 [label="{90}"];
+  node0 -> node1;
+  node1 [label="{88}"];
+  node1 -> node2;
+  node2 [label="{87}"];
+  node2 -> node3;
+  node3 [label="{89}"];
+  node3 -> node4;
+  node4 [label="{86}"];
+}

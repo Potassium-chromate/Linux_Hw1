@@ -1,0 +1,10 @@
+digraph G {
+  node [shape=record];
+  node0 [label="{523}"];
+  node0 -> node1;
+  node1 [label="{526}"];
+  node1 -> node2;
+  node2 [label="{524}"];
+  node2 -> node3;
+  node3 [label="{525}"];
+}
