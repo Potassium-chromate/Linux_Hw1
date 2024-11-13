@@ -1,8 +1,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "list.h"
-#include "sort_impl.h"
+#pragma once
+
+#ifndef LIST_H
+#define LIST_H
+#endif 
+
+
+#define FFFF 1
+
+typedef int (*list_cmp_func_t)(void *,
+                               const struct list_head *,
+                               const struct list_head *);
 
 static inline size_t run_size(struct list_head *head)
 {
@@ -25,13 +35,16 @@ static struct list_head *merge(void *priv,
                                struct list_head *b)
 {
     struct list_head *head;
-    struct list_head **tail = AAAA;
+    //AAAA
+    struct list_head **tail = &head;
 
     for (;;) {
         /* if equal, take 'a' -- important for sort stability */
         if (cmp(priv, a, b) <= 0) {
+        	//cmp will return a's value - b's value
             *tail = a;
-            tail = BBBB;
+            //BBBB
+            tail = &(a->next);
             a = a->next;
             if (!a) {
                 *tail = b;
@@ -39,7 +52,8 @@ static struct list_head *merge(void *priv,
             }
         } else {
             *tail = b;
-            tail = CCCC;
+            //CCCC
+            tail = &(b->next);
             b = b->next;
             if (!b) {
                 *tail = a;
@@ -53,7 +67,8 @@ static struct list_head *merge(void *priv,
 static void build_prev_link(struct list_head *head,
                             struct list_head *tail,
                             struct list_head *list)
-{
+{	
+	//assume list is not doubly linked
     tail->next = list;
     do {
         list->prev = tail;
@@ -62,8 +77,11 @@ static void build_prev_link(struct list_head *head,
     } while (list);
 
     /* The final links to make a circular doubly-linked list */
-    DDDD = head;
-    EEEE = tail;
+    //DDDD
+    //EEEE
+    tail->next = head;
+	head->prev = tail;  
+    
 }
 
 static void merge_final(void *priv,

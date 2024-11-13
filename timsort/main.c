@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "list.h"
-#include "sort_impl.h"
+#include "timsort.h"
 
 typedef struct {
     struct list_head list;
