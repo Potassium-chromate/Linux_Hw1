@@ -121,40 +121,55 @@ static struct pair find_run(void *priv,
                             struct list_head *list,
                             list_cmp_func_t cmp)
 {
-    size_t len = 1;
+    size_t len = 1; // Initialize length of the run
     struct list_head *next = list->next, *head = list;
     struct pair result;
 
+    // If the list has only one node, return immediately
     if (!next) {
         result.head = head, result.next = next;
         return result;
     }
-
+	//The last node of run, its `next` should point to NULL
+    // Check if the run is descending
     if (cmp(priv, list, next) > 0) {
-        /* decending run, also reverse the list */
+        // If the next node is smaller, it indicates a descending run
+        // Reverse the order of nodes in the run to convert it to ascending order
         struct list_head *prev = NULL;
         do {
             len++;
+            // Point the current node's `next` to the previous node to reverse the order
             list->next = prev;
             prev = list;
-            list = next;
+            list = next; 
             next = list->next;
-            head = list;
-        } while (next && cmp(priv, list, next) > 0);
+            head = list; // Update `head` to the new start of the reversed list
+        } while (next && cmp(priv, list, next) > 0); // Continue if in descending order
+
+        // Set the last node in the reversed run to point to the previous node
         list->next = prev;
     } else {
+        // If the run is ascending, keep the order as is
         do {
             len++;
             list = next;
             next = list->next;
         } while (next && cmp(priv, list, next) <= 0);
+        
+        
         list->next = NULL;
     }
-    head->prev = NULL;
+    
+    head->prev = NULL; // Initialize `prev` of `head` to NULL
+
+    // The list is now a singly linked list.
+    // Use `head->next->prev` to store `len` (run length) to reduce the use of additional variables.
     head->next->prev = (struct list_head *) len;
+    
     result.head = head, result.next = next;
     return result;
 }
+
 
 static struct list_head *merge_at(void *priv,
                                   list_cmp_func_t cmp,
@@ -188,17 +203,23 @@ static struct list_head *merge_collapse(void *priv,
                                         struct list_head *tp)
 {
     int n;
+    // Loop until there are fewer than 2 runs in the stack
     while ((n = stk_size) >= 2) {
+    	// Check conditions to decide whether to merge runs
         if ((n >= 3 &&
              run_size(tp->prev->prev) <= run_size(tp->prev) + run_size(tp)) ||
             (n >= 4 && run_size(tp->prev->prev->prev) <=
                            run_size(tp->prev->prev) + run_size(tp->prev))) {
+            //Check if the third-last run is smaller or equal to sizes of the last runs.               
             if (run_size(tp->prev->prev) < run_size(tp)) {
+            	//Merge third-last and second-last
                 tp->prev = merge_at(priv, cmp, tp->prev);
             } else {
+            	//Merge last and second-last
                 tp = merge_at(priv, cmp, tp);
             }
         } else if (run_size(tp->prev) <= run_size(tp)) {
+        	//Merge last and second-last
             tp = merge_at(priv, cmp, tp);
         } else {
             break;
@@ -224,6 +245,7 @@ void timsort(void *priv, struct list_head *head, list_cmp_func_t cmp)
         struct pair result = find_run(priv, list, cmp);
         result.head->prev = tp;
         tp = result.head;
+        //Move list to the head of next run
         list = result.next;
         stk_size++;
         tp = merge_collapse(priv, cmp, tp);
