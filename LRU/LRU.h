@@ -1,5 +1,7 @@
 #include <stdbool.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define container_of(ptr, type, member) \
     ((type *) ((char *) (ptr) - (size_t) & (((type *) 0)->member)))
@@ -38,6 +40,20 @@ void INIT_HLIST_HEAD(struct hlist_head *h)
 {
     h->first = NULL;
 }
+
+
+int default_hash(int key, int capacity) {
+	//if (key % capacity == 0)
+		//printf("0\n");
+    return key % capacity;
+}
+
+int multiplicative_hash(int key, int capacity) {
+    long long constant = 2654435761; // Example constant
+    //printf("%lld\n",(key * constant) >> 16);
+    return ((key * constant) >> 16) % (capacity - 1);
+}
+
 
 //Add head into head list
 void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
@@ -105,6 +121,7 @@ typedef struct {
     int capacity;
     int count;
     struct list_head dhead;
+    int (*hash_function)(int key, int capacity);
     struct hlist_head hhead[];
 } LRUCache;
 
@@ -115,13 +132,23 @@ typedef struct {
     struct list_head link;
 } LRUNode;
 
-LRUCache *lRUCacheCreate(int capacity)
+LRUCache *lRUCacheCreate(int capacity, char* hash_function)
 {	
-    LRUCache *cache = malloc(2 * sizeof(int) + sizeof(struct list_head) +
-                             capacity * sizeof(struct hlist_head));
+    LRUCache *cache = malloc(sizeof(LRUCache) + capacity * sizeof(struct hlist_head));
     cache->capacity = capacity;
     cache->count = 0;
     INIT_LIST_HEAD(&cache->dhead);
+    
+    if (strcmp(hash_function, "default") == 0)
+    	cache->hash_function = & default_hash;
+    else if (strcmp(hash_function, "multiplicative") == 0)
+    	cache->hash_function = & multiplicative_hash;
+    else{
+    	printf("Hash function type not found\n");
+    	free(cache);
+    	return NULL;
+    }
+    
     for (int i = 0; i < capacity; i++)
         INIT_HLIST_HEAD(&cache->hhead[i]);
     return cache;
@@ -142,9 +169,10 @@ void lRUCacheFree(LRUCache *obj)
 
 int lRUCacheGet(LRUCache *obj, int key)
 {
-    int hash = key % obj->capacity;
+    int hash = obj->hash_function(key, obj->capacity);
     struct hlist_node *pos;
     hlist_for_each (pos, &obj->hhead[hash]) {
+    	if (!pos) break;
     	//LRUNode *cache = list_entry(pos, LRUNode, HHHH);
         LRUNode *cache = list_entry(pos, LRUNode, node);
         if (cache->key == key) {
@@ -159,9 +187,10 @@ int lRUCacheGet(LRUCache *obj, int key)
 void lRUCachePut(LRUCache *obj, int key, int value)
 {
     LRUNode *cache = NULL;
-    int hash = key % obj->capacity;
-    struct hlist_node *pos;
+    int hash = obj->hash_function(key, obj->capacity);
+    struct hlist_node *pos, *n;
     hlist_for_each (pos, &obj->hhead[hash]) {
+    	if (!pos) break;
         //LRUNode *c = list_entry(pos, LRUNode, JJJJ);
         LRUNode *c = list_entry(pos, LRUNode, link);
         if (c->key == key) {
@@ -183,7 +212,7 @@ void lRUCachePut(LRUCache *obj, int key, int value)
             list_add(&cache->link, &obj->dhead);
             obj->count++;
         }
-        cache->key = key;
+        cache->key = key;          
     }
     cache->value = value;
 }
