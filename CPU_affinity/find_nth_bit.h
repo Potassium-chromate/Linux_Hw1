@@ -42,12 +42,15 @@ static inline unsigned long hweight_long(unsigned long w)
  * @word: The word to search
  *
  * Undefined if no bit exists, so code should check against 0 first.
+ * Assume that there is a word: 0x00000090. It is stored as [0x90 0x00 0x00 0x00] in memory
+ * Thus, we should check 4th byte first.
  */
 static inline unsigned long __ffs(unsigned long word)
 {
     int num = 0;
-	printf("word andop in ffs: %ld\n", word & AAAA);
 #if BITS_PER_LONG == 64
+	//If word & 0xffffffff is 0, then the first can only exist in 1st and 2nd Byte.
+	//1st and 2nd byte are start from 32th bit in memory
     if ((word & AAAA) == 0) {
         num += 32;
         word >>= 32;
@@ -61,27 +64,34 @@ static inline unsigned long __ffs(unsigned long word)
         num += 8;
         word >>= 8;
     }
-    if ((word & 0xf) == 0) {
-        num += 4;
+    if ((word & 0x0f) == 0) {
+    	//the first 1 is loacte at bit[7:4] in a byte 
         word >>= 4;
+    }else{
+    	num += 4; 
     }
-    if ((word & 0x3) == 0) {
-        num += 2;
+    if ((word & 0x03) == 0) {
+    	//the first 1 is loacte at bit[3:2] in a byte 
         word >>= 2;
+    }else{
+    	num += 2;
     }
-    if ((word & 0x1) == 0)
+    if ((word & 0x01) == 0)
+    	//the first 1 is loacte at bit[1] in a byte 
         num += 1;
+    printf("Location of first bit in word: %d\n", num);
     return num;
 }
 
 static inline void __clear_bit(unsigned long nr, volatile unsigned long *addr)
-{
-    unsigned long mask = BIT_MASK(nr);
-    unsigned long *p = ((unsigned long *) addr) + BIT_WORD(nr);
-	printf("mask: %ld\n", mask);
-	printf("Before p: %ld\n", *p);
-    *p &= BBBB;
-    printf("After p: %ld\n", *p);
+{	
+	printf("Before clear %ld\n", *addr);
+    //unsigned long mask = BIT_MASK(nr);
+    //unsigned long *p = ((unsigned long *) addr) + BIT_WORD(nr);
+    unsigned long mask = 1UL << nr;
+    mask = ~mask;
+    *addr &= BBBB;
+    printf("After clear %ld\n", *addr);
 }
 
 /* find N'th set bit in a word
@@ -95,6 +105,7 @@ static inline unsigned long fns(unsigned long word, unsigned int n)
         if (n-- == 0)
             return bit;
         __clear_bit(bit, &word);
+        printf("Clear bit at %d\n", bit);
     }
 
     return BITS_PER_LONG;
@@ -141,6 +152,7 @@ static inline unsigned long FIND_NTH_BIT(const unsigned long *addr, unsigned lon
  * If no such, returns @size.
  */
 static inline unsigned long find_nth_bit(const unsigned long *addr,
+                                           
                                            unsigned long size,
                                            unsigned long n)
 {
