@@ -5,14 +5,14 @@
 
 int main() {
     unsigned long bitmap[] = {0b10010000, 0b00110011};
-    printf("%ld\n",bitmap[0]);
-    printf("%ld\n",bitmap[1]);
+    //printf("%ld\n",bitmap[0]);
+    //printf("%ld\n",bitmap[1]);
     
     unsigned long size = ARRAY_SIZE(bitmap) * BITS_PER_LONG;
-    printf("Bits for long: %d\n", BITS_PER_LONG);
-    printf("The size is %ld\n", size);
+    //printf("Bits for long: %d\n", BITS_PER_LONG);
+    //printf("The size is %ld\n", size);
     
-    unsigned long bit_to_find = 3; // Find the 4th set bit (0-indexed)
+    unsigned long bit_to_find = 5; // Find the 4th set bit (0-indexed)
 
     unsigned long position = find_nth_bit(bitmap, size, bit_to_find);
 
@@ -24,4 +24,3 @@ int main() {
 
     return 0;
 }
-
