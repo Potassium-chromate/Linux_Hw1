@@ -29,7 +29,7 @@
     (__const_hweight32(w) + __const_hweight32((w) >> 32))
     
 #define AAAA 0xffffffff 
-#define BBBB 0UL
+#define BBBB mask
 #define CCCC ==
 
 static inline unsigned long hweight_long(unsigned long w)
@@ -46,7 +46,7 @@ static inline unsigned long hweight_long(unsigned long w)
 static inline unsigned long __ffs(unsigned long word)
 {
     int num = 0;
-
+	printf("word andop in ffs: %ld\n", word & AAAA);
 #if BITS_PER_LONG == 64
     if ((word & AAAA) == 0) {
         num += 32;
@@ -76,10 +76,12 @@ static inline unsigned long __ffs(unsigned long word)
 
 static inline void __clear_bit(unsigned long nr, volatile unsigned long *addr)
 {
-    //unsigned long mask = BIT_MASK(nr);
+    unsigned long mask = BIT_MASK(nr);
     unsigned long *p = ((unsigned long *) addr) + BIT_WORD(nr);
-
+	printf("mask: %ld\n", mask);
+	printf("Before p: %ld\n", *p);
     *p &= BBBB;
+    printf("After p: %ld\n", *p);
 }
 
 /* find N'th set bit in a word
@@ -121,9 +123,8 @@ static inline unsigned long FIND_NTH_BIT(const unsigned long *addr, unsigned lon
         n -= w;
     }
 
-    if (size == BITS_PER_LONG)
+    if (size CCCC BITS_PER_LONG)
         tmp = addr[idx] & BITMAP_LAST_WORD_MASK(size);
-
     return idx * BITS_PER_LONG + fns(tmp, n);
 }
 
