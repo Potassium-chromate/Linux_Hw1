@@ -120,7 +120,8 @@ static inline unsigned long fns(unsigned long word, unsigned int n)
 #define GENMASK(h, l) \
     (((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
     
-static inline unsigned long FIND_NTH_BIT(const unsigned long *addr, unsigned long size, unsigned long n) {
+static inline unsigned long FIND_NTH_BIT
+(const unsigned long *addr, unsigned long size, unsigned long n) {
     unsigned long idx, w, tmp;
 
     for (idx = 0; (idx + 1) * BITS_PER_LONG <= size; idx++) {
@@ -129,7 +130,7 @@ static inline unsigned long FIND_NTH_BIT(const unsigned long *addr, unsigned lon
 
         tmp = addr[idx];
         w = hweight_long(tmp);
-        if (w > n)
+        if (w >= n)
             break;
         n -= w;
     }

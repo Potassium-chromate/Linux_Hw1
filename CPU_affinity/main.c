@@ -12,7 +12,7 @@ int main() {
     //printf("Bits for long: %d\n", BITS_PER_LONG);
     //printf("The size is %ld\n", size);
     
-    unsigned long bit_to_find = 5; // Find the 4th set bit (0-indexed)
+    unsigned long bit_to_find = 2; // Find the 4th set bit (0-indexed)
 
     unsigned long position = find_nth_bit(bitmap, size, bit_to_find);
 
